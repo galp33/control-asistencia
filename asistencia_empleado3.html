@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Asistencia · Grupo Vera</title>
+<style>
+/* ── TOKENS ──────────────────────────────────────────────── */
+:root{
+  --navy:#1a3a5c;
+  --navy2:#0f2238;
+  --gold:#e8a020;
+  --green:#2e7d32;
+  --green-l:#e8f5e9;
+  --red:#c62828;
+  --red-l:#ffebee;
+  --orange:#e65100;
+  --orange-l:#fff3e0;
+  --blue:#1565c0;
+  --blue-l:#e3f2fd;
+  --pink:#880e4f;
+  --pink-l:#fce4ec;
+  --bg:#f0f3f7;
+  --card:#ffffff;
+  --border:#dde3ea;
+  --txt:#1e2a38;
+  --muted:#6b7a8d;
+  --radius:14px;
+  --shadow:0 2px 12px rgba(0,0,0,.08);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:'Segoe UI',Arial,sans-serif;background:var(--bg);min-height:100vh;color:var(--txt)}
+
+/* ── HEADER ─────────────────────────────────────────────── */
+header{background:var(--navy2);padding:0;position:sticky;top:0;z-index:100}
+.hdr-inner{display:flex;justify-content:space-between;align-items:center;padding:12px 20px;max-width:520px;margin:0 auto}
+.hdr-brand{display:flex;align-items:center;gap:10px}
+.hdr-logo{width:32px;height:32px;background:var(--gold);border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:.85rem;color:var(--navy2)}
+.hdr-title{color:#fff;font-size:.9rem;font-weight:600;letter-spacing:.3px}
+.hdr-sub{color:rgba(255,255,255,.5);font-size:.68rem;margin-top:1px}
+.hdr-clock{text-align:right}
+.hdr-time{color:#fff;font-size:1.3rem;font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:1px}
+.hdr-date{color:rgba(255,255,255,.5);font-size:.65rem;margin-top:2px}
+
+/* ── MAIN CONTAINER ──────────────────────────────────────── */
+main{max-width:520px;margin:0 auto;padding:16px}
+
+/* ── CARD BASE ───────────────────────────────────────────── */
+.card{background:var(--card);border-radius:var(--radius);border:1px solid var(--border);box-shadow:var(--shadow);margin-bottom:14px;overflow:hidden}
+.card-head{padding:14px 18px 0;font-size:.7rem;text-transform:uppercase;letter-spacing:.9px;color:var(--muted);font-weight:700}
+
+/* ── PANTALLA CÉDULA ─────────────────────────────────────── */
+#screen-cedula{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:calc(100vh - 70px);padding:24px}
+.cedula-card{background:var(--card);border-radius:var(--radius);border:1px solid var(--border);box-shadow:var(--shadow);width:100%;max-width:380px;padding:32px 28px;text-align:center}
+.cedula-ico{font-size:3rem;margin-bottom:12px}
+.cedula-title{font-size:1.1rem;font-weight:700;color:var(--navy);margin-bottom:6px}
+.cedula-sub{font-size:.8rem;color:var(--muted);margin-bottom:24px;line-height:1.5}
+.cedula-input{width:100%;padding:14px 16px;border:2px solid var(--border);border-radius:10px;font-size:1.2rem;text-align:center;letter-spacing:3px;font-weight:700;color:var(--navy);background:#f9fafb;transition:border-color .2s}
+.cedula-input:focus{outline:none;border-color:var(--navy)}
+.cedula-input::placeholder{letter-spacing:1px;font-weight:400;font-size:.9rem;color:#b0bbc8}
+.btn-ingresar{width:100%;margin-top:14px;padding:14px;background:var(--navy);color:#fff;border:none;border-radius:10px;font-size:1rem;font-weight:700;cursor:pointer;transition:background .15s}
+.btn-ingresar:hover{background:var(--navy2)}
+.btn-ingresar:disabled{opacity:.4;cursor:not-allowed}
+.cedula-error{margin-top:12px;padding:10px 14px;background:var(--red-l);border-radius:8px;font-size:.82rem;color:var(--red);font-weight:600;display:none}
+
+/* ── GPS STATUS ──────────────────────────────────────────── */
+#gps-banner{display:none;margin-bottom:14px;padding:12px 16px;border-radius:10px;font-size:.82rem;font-weight:700;text-align:center}
+.gps-checking{background:#fff8e1;color:#f57f17;border:1px solid #ffe082}
+.gps-ok{background:var(--green-l);color:var(--green);border:1px solid #a5d6a7}
+.gps-fail{background:var(--red-l);color:var(--red);border:1px solid #ef9a9a}
+
+/* ── PERFIL EMPLEADO ──────────────────────────────────────── */
+.perfil-band{display:flex;justify-content:space-between;align-items:center;padding:14px 18px;background:var(--navy);color:#fff}
+.perf-nombre{font-size:.95rem;font-weight:700}
+.perf-meta{font-size:.72rem;opacity:.7;margin-top:3px}
+.btn-salir{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);color:#fff;border-radius:7px;padding:5px 12px;font-size:.75rem;cursor:pointer}
+.btn-salir:hover{background:rgba(255,255,255,.25)}
+
+/* ── BOTONES EVENTO ──────────────────────────────────────── */
+.eventos{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
+.ev-btn{padding:24px 10px 20px;border:2px solid transparent;border-radius:12px;font-size:1rem;font-weight:700;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:7px;transition:all .15s;position:relative}
+.ev-btn:hover:not(:disabled){transform:translateY(-2px);filter:brightness(.96)}
+.ev-btn:active:not(:disabled){transform:scale(.97)}
+.ev-btn:disabled{opacity:.3;cursor:not-allowed;transform:none!important}
+.ev-btn .ico{font-size:2rem;line-height:1}
+.ev-btn .lbl{font-size:.75rem;letter-spacing:.6px;font-weight:800}
+.ev-btn .hr{font-size:.78rem;font-weight:700;opacity:.85;min-height:1em}
+
+.btn-E{background:var(--green-l);color:var(--green)}
+.btn-A{background:var(--orange-l);color:var(--orange)}
+.btn-R{background:var(--blue-l);color:var(--blue)}
+.btn-S{background:var(--pink-l);color:var(--pink)}
+
+.ev-btn.done{border-color:currentColor}
+.ev-btn.next{box-shadow:0 0 0 3px var(--gold);animation:pulso 1.8s infinite}
+@keyframes pulso{
+  0%,100%{box-shadow:0 0 0 3px rgba(232,160,32,.8)}
+  50%{box-shadow:0 0 0 7px rgba(232,160,32,.15)}
+}
+
+/* ── PROGRESO ─────────────────────────────────────────────── */
+.prog-wrap{padding:14px 18px 16px}
+.prog-bar{display:flex;gap:3px;margin-bottom:6px}
+.prog-seg{flex:1;height:7px;border-radius:4px;background:#e8eaed;transition:background .3s}
+.prog-seg.done{background:var(--green)}
+.prog-seg.cur{background:var(--gold)}
+.prog-labels{display:flex}
+.prog-labels span{flex:1;font-size:.63rem;color:var(--muted);text-align:center}
+
+/* ── RESUMEN ──────────────────────────────────────────────── */
+.resumen{padding:4px 18px 16px}
+.res-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid #f0f3f7;font-size:.85rem}
+.res-row:last-child{border-bottom:none}
+.res-lbl{color:var(--muted)}
+.res-val{font-weight:700;color:var(--navy)}
+.res-extra{color:var(--orange);font-weight:700}
+.res-total{margin-top:4px;padding-top:8px;border-top:2px solid var(--border);display:flex;justify-content:space-between;font-size:.9rem}
+
+/* ── MODAL GPS BLOQUEADO ──────────────────────────────────── */
+#modal-gps{display:none;position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:500;align-items:center;justify-content:center;padding:20px}
+#modal-gps.show{display:flex}
+.mgps-box{background:#fff;border-radius:16px;width:100%;max-width:380px;overflow:hidden;text-align:center}
+.mgps-head{background:var(--red);color:#fff;padding:18px;font-size:1rem;font-weight:700}
+.mgps-body{padding:28px 24px}
+.mgps-ico{font-size:3.5rem;margin-bottom:12px}
+.mgps-msg{font-size:.9rem;color:var(--txt);margin-bottom:8px;line-height:1.5}
+.mgps-dist{font-size:1.3rem;font-weight:800;color:var(--red);margin:12px 0}
+.mgps-sub{font-size:.75rem;color:var(--muted);line-height:1.5}
+.btn-mgps{margin-top:20px;padding:12px 32px;background:var(--navy);color:#fff;border:none;border-radius:9px;font-size:.9rem;font-weight:700;cursor:pointer}
+
+/* ── SPINNER ──────────────────────────────────────────────── */
+#spinner{display:none;position:fixed;inset:0;background:rgba(255,255,255,.7);z-index:400;align-items:center;justify-content:center;flex-direction:column;gap:12px}
+#spinner.show{display:flex}
+.spin-ring{width:44px;height:44px;border:4px solid var(--border);border-top-color:var(--navy);border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.spin-txt{font-size:.85rem;color:var(--muted);font-weight:600}
+
+/* ── TOAST ────────────────────────────────────────────────── */
+#toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--navy2);color:#fff;padding:12px 22px;border-radius:10px;font-size:.85rem;font-weight:600;z-index:600;transition:transform .3s;white-space:nowrap}
+#toast.show{transform:translateX(-50%) translateY(0)}
+
+/* ── PANEL OCULTO ─────────────────────────────────────────── */
+#screen-panel{display:none}
+
+/* ── MODAL EPP ───────────────────────────────────────────── */
+#modal-epp{display:none;position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:500;align-items:center;justify-content:center;padding:20px}
+#modal-epp.show{display:flex}
+.mepp-box{background:#fff;border-radius:16px;width:100%;max-width:380px;overflow:hidden;text-align:center}
+.mepp-head{background:var(--navy);color:#fff;padding:18px 20px;font-size:1rem;font-weight:700;line-height:1.3}
+.mepp-body{padding:28px 24px}
+.mepp-ico{font-size:3rem;margin-bottom:14px}
+.mepp-txt{font-size:.92rem;color:var(--txt);line-height:1.6;margin-bottom:24px}
+.mepp-txt strong{color:var(--navy)}
+.mepp-btns{display:flex;flex-direction:column;gap:10px}
+.btn-epp-ok{padding:14px;background:var(--green);color:#fff;border:none;border-radius:10px;font-size:.95rem;font-weight:700;cursor:pointer;transition:background .15s}
+.btn-epp-ok:hover{background:#1b5e20}
+.btn-epp-no{padding:12px;background:#fff;color:var(--red);border:2px solid var(--red);border-radius:10px;font-size:.88rem;font-weight:700;cursor:pointer}
+.mepp-aviso{display:none;margin-top:14px;padding:12px;background:var(--red-l);border-radius:8px;font-size:.8rem;color:var(--red);font-weight:600;line-height:1.5}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="hdr-inner">
+    <div class="hdr-brand">
+      <div class="hdr-logo">GV</div>
+      <div>
+        <div class="hdr-title">Grupo Vera</div>
+        <div class="hdr-sub">Control de Asistencia</div>
+      </div>
+    </div>
+    <div class="hdr-clock">
+      <div class="hdr-time" id="clk">00:00:00</div>
+      <div class="hdr-date" id="clk-fecha"></div>
+    </div>
+  </div>
+</header>
+
+<!-- ══ PANTALLA 1: CÉDULA ══════════════════════════════════ -->
+<div id="screen-cedula">
+  <div class="cedula-card">
+    <div class="cedula-ico">🪪</div>
+    <div class="cedula-title">Ingresa tu cédula</div>
+    <div class="cedula-sub">El sistema verificará tu identidad y ubicación antes de registrar.</div>
+    <input class="cedula-input" id="inp-cedula" type="tel" maxlength="10"
+           placeholder="0000000000" inputmode="numeric"
+           oninput="this.value=this.value.replace(/\D/g,'')"
+           onkeydown="if(event.key==='Enter')verificarEmpleado()">
+    <button class="btn-ingresar" onclick="verificarEmpleado()">Verificar →</button>
+    <div class="cedula-error" id="cedula-error"></div>
+  </div>
+</div>
+
+<!-- ══ PANTALLA 2: PANEL EMPLEADO ══════════════════════════ -->
+<div id="screen-panel">
+  <main>
+    <!-- GPS Banner -->
+    <div id="gps-banner"></div>
+
+    <!-- Perfil -->
+    <div class="card" style="margin-bottom:14px">
+      <div class="perfil-band">
+        <div>
+          <div class="perf-nombre" id="p-nombre">–</div>
+          <div class="perf-meta" id="p-meta">–</div>
+        </div>
+        <button class="btn-salir" onclick="cerrarSesion()">↩ Salir</button>
+      </div>
+
+      <!-- Progreso -->
+      <div class="prog-wrap">
+        <div class="prog-bar">
+          <div class="prog-seg" id="ps0"></div>
+          <div class="prog-seg" id="ps1"></div>
+          <div class="prog-seg" id="ps2"></div>
+          <div class="prog-seg" id="ps3"></div>
+        </div>
+        <div class="prog-labels">
+          <span>Entrada</span><span>Almuerzo</span><span>Regreso</span><span>Salida</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Botones evento -->
+    <div class="eventos">
+      <button class="ev-btn btn-E" id="btn-E" onclick="registrar('E')" disabled>
+        <span class="ico">🟢</span>
+        <span class="lbl">ENTRADA</span>
+        <span class="hr" id="hr-E"></span>
+      </button>
+      <button class="ev-btn btn-A" id="btn-A" onclick="registrar('A')" disabled>
+        <span class="ico">🍽</span>
+        <span class="lbl">ALMUERZO</span>
+        <span class="hr" id="hr-A"></span>
+      </button>
+      <button class="ev-btn btn-R" id="btn-R" onclick="registrar('R')" disabled>
+        <span class="ico">🔵</span>
+        <span class="lbl">REGRESO</span>
+        <span class="hr" id="hr-R"></span>
+      </button>
+      <button class="ev-btn btn-S" id="btn-S" onclick="registrar('S')" disabled>
+        <span class="ico">🔴</span>
+        <span class="lbl">SALIDA</span>
+        <span class="hr" id="hr-S"></span>
+      </button>
+    </div>
+
+    <!-- Resumen hoy -->
+    <div class="card" id="card-resumen" style="display:none">
+      <div class="card-head" style="padding:14px 18px 10px">Resumen de hoy</div>
+      <div class="resumen">
+        <div class="res-row"><span class="res-lbl">Entrada</span><span class="res-val" id="rv-E">–</span></div>
+        <div class="res-row"><span class="res-lbl">Almuerzo</span><span class="res-val" id="rv-A">–</span></div>
+        <div class="res-row"><span class="res-lbl">Regreso</span><span class="res-val" id="rv-R">–</span></div>
+        <div class="res-row"><span class="res-lbl">Salida</span><span class="res-val" id="rv-S">–</span></div>
+        <div class="res-total">
+          <span style="color:var(--muted)">Horas trabajadas</span>
+          <span class="res-val" id="rv-horas">–</span>
+        </div>
+        <div class="res-total" id="row-extra" style="display:none">
+          <span style="color:var(--muted)">Horas extra</span>
+          <span class="res-extra" id="rv-extra">–</span>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- MODAL EPP -->
+<div id="modal-epp">
+  <div class="mepp-box">
+    <div class="mepp-head">⛑️ Declaración de Equipos de Protección Personal</div>
+    <div class="mepp-body">
+      <div class="mepp-ico">🦺</div>
+      <div class="mepp-txt">
+        Confirmo que cuento con <strong>todos los equipos de protección personal (EPP)</strong> necesarios y en buen estado para realizar mi trabajo de forma segura.
+      </div>
+      <div class="mepp-btns">
+        <button class="btn-epp-ok" onclick="confirmarEPP(true)">✅ Confirmo — tengo todo el EPP</button>
+        <button class="btn-epp-no" onclick="confirmarEPP(false)">⚠ No tengo todo el EPP</button>
+      </div>
+      <div class="mepp-aviso" id="mepp-aviso">
+        No puedes registrar tu entrada sin el EPP completo.<br>
+        Contacta a tu supervisor antes de ingresar al área de trabajo.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL GPS BLOQUEADO -->
+<div id="modal-gps">
+  <div class="mgps-box">
+    <div class="mgps-head">⛔ Fuera del área asignada</div>
+    <div class="mgps-body">
+      <div class="mgps-ico">📍</div>
+      <div class="mgps-msg">No puedes registrar asistencia<br>desde esta ubicación.</div>
+      <div class="mgps-dist" id="mgps-dist"></div>
+      <div class="mgps-sub">Debes estar físicamente en tu obra asignada.<br>Si crees que es un error, contacta a tu supervisor.</div>
+      <button class="btn-mgps" onclick="document.getElementById('modal-gps').classList.remove('show')">Entendido</button>
+    </div>
+  </div>
+</div>
+
+<!-- SPINNER -->
+<div id="spinner">
+  <div class="spin-ring"></div>
+  <div class="spin-txt" id="spin-txt">Verificando...</div>
+</div>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<script>
+// ══════════════════════════════════════════════════════════════
+//  CONFIGURACIÓN — REEMPLAZAR con tu Google Apps Script URL
+// ══════════════════════════════════════════════════════════════
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyuaUDTTZ2JUEWJEx8sEF9GVs5ZS5dxypcUgdnGSP0yqgHQsZy1iLKWhlYCS8KPdNIZ1Q/exec';
+
+// ── DATOS LOCALES DE EMPLEADOS (mientras no hay backend) ──────
+// ESTO LO REEMPLAZA EL APPS SCRIPT más adelante.
+// Estructura: {cedula, nombre, obra, turnoInicio, turnoFin, jornadaHrs, lat, lng, radio}
+const EMPLEADOS_LOCAL = [
+  {
+    cedula:'0912345678',
+    nombre:'Juan Pérez',
+    cargo:'Albañil',
+    obra:'Obra Centro — Guayaquil',
+    turnoInicio:'07:00', turnoFin:'16:00', jornadaHrs:8,
+    lat:-2.1894, lng:-79.8890, radio:200
+  },
+  {
+    cedula:'0987654321',
+    nombre:'María Gómez',
+    cargo:'Asistente de Oficina',
+    obra:'Oficina Samborondón',
+    turnoInicio:'08:00', turnoFin:'17:00', jornadaHrs:8,
+    lat:-2.0763, lng:-79.9036, radio:150
+  }
+];
+
+// ── ESTADO ────────────────────────────────────────────────────
+const FLUJO = ['E','A','R','S'];
+const DIAS  = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
+const MESES = ['enero','febrero','marzo','abril','mayo','junio',
+               'julio','agosto','septiembre','octubre','noviembre','diciembre'];
+
+let empleadoActual = null;  // objeto del empleado logueado
+let registrosHoy   = {};    // {E,A,R,S} → hora string
+
+// ── RELOJ ─────────────────────────────────────────────────────
+setInterval(()=>{
+  const n = new Date();
+  document.getElementById('clk').textContent =
+    n.toLocaleTimeString('es-EC',{hour12:false});
+  document.getElementById('clk-fecha').textContent =
+    DIAS[n.getDay()]+' '+n.getDate()+' '+MESES[n.getMonth()];
+},500);
+
+// ── HELPERS ───────────────────────────────────────────────────
+function hoy(){ return new Date().toISOString().split('T')[0]; }
+function spinner(show, txt=''){
+  document.getElementById('spinner').classList.toggle('show',show);
+  if(txt) document.getElementById('spin-txt').textContent=txt;
+}
+function toast(msg, dur=3000){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),dur);
+}
+
+// ── VERIFICAR EMPLEADO ────────────────────────────────────────
+function verificarEmpleado(){
+  const ced   = document.getElementById('inp-cedula').value.trim();
+  const errEl = document.getElementById('cedula-error');
+  errEl.style.display='none';
+
+  if(ced.length < 10){
+    errEl.textContent='Ingresa los 10 dígitos de tu cédula.';
+    errEl.style.display='block'; return;
+  }
+
+  spinner(true,'Buscando empleado...');
+
+  fetch(`${SCRIPT_URL}?cedula=${ced}`)
+    .then(r=>r.json())
+    .then(data=>{
+      spinner(false);
+      if(!data.ok){
+        errEl.textContent='Cédula no registrada. Contacta a tu supervisor.';
+        errEl.style.display='block'; return;
+      }
+      empleadoActual = data.empleado;
+      cargarRegistrosLocales();
+      mostrarPanel();
+    })
+    .catch(()=>{
+      spinner(false);
+      // Fallback a datos locales si no hay conexión
+      const emp = EMPLEADOS_LOCAL.find(e=>e.cedula===ced);
+      if(!emp){
+        errEl.textContent='Sin conexión y cédula no encontrada localmente.';
+        errEl.style.display='block'; return;
+      }
+      empleadoActual = emp;
+      cargarRegistrosLocales();
+      mostrarPanel();
+      toast('⚠ Sin conexión — modo offline',4000);
+    });
+}
+
+// ── CARGAR REGISTROS DEL DÍA (localStorage) ──────────────────
+function cargarRegistrosLocales(){
+  const key = `gv_regs_${empleadoActual.cedula}_${hoy()}`;
+  try{ registrosHoy = JSON.parse(localStorage.getItem(key)||'{}'); }
+  catch(e){ registrosHoy={}; }
+}
+function guardarRegistrosLocales(){
+  const key = `gv_regs_${empleadoActual.cedula}_${hoy()}`;
+  localStorage.setItem(key, JSON.stringify(registrosHoy));
+}
+
+// ── MOSTRAR PANEL ─────────────────────────────────────────────
+function mostrarPanel(){
+  document.getElementById('screen-cedula').style.display='none';
+  document.getElementById('screen-panel').style.display='block';
+
+  const e = empleadoActual;
+  document.getElementById('p-nombre').textContent = e.nombre;
+  document.getElementById('p-meta').textContent =
+    `${e.cargo}  ·  ${e.obra}  ·  ${e.turnoInicio}–${e.turnoFin}`;
+
+  renderDia();
+  verificarGPS(); // verificación automática al entrar
+}
+
+// ── CERRAR SESIÓN ─────────────────────────────────────────────
+function cerrarSesion(){
+  empleadoActual=null; registrosHoy={};
+  document.getElementById('inp-cedula').value='';
+  document.getElementById('cedula-error').style.display='none';
+  document.getElementById('gps-banner').style.display='none';
+  document.getElementById('screen-panel').style.display='none';
+  document.getElementById('screen-cedula').style.display='flex';
+}
+
+// ── GPS ───────────────────────────────────────────────────────
+function verificarGPS(callback){
+  const banner = document.getElementById('gps-banner');
+  const e = empleadoActual;
+
+  if(!e.lat || !e.lng){
+    // Sin geofence configurado → permitir
+    banner.style.display='none';
+    if(callback) callback(true,0);
+    return;
+  }
+
+  banner.className='gps-checking';
+  banner.textContent='📡 Verificando tu ubicación...';
+  banner.style.display='block';
+
+  navigator.geolocation.getCurrentPosition(
+    pos=>{
+      const dist = calcDist(pos.coords.latitude, pos.coords.longitude, e.lat, e.lng);
+      const ok   = dist <= e.radio;
+      if(ok){
+        banner.className='gps-ok';
+        banner.textContent=`✅ Ubicación confirmada — a ${Math.round(dist)} m de la obra`;
+        setTimeout(()=>banner.style.display='none', 4000);
+      } else {
+        banner.style.display='none';
+        document.getElementById('mgps-dist').textContent=
+          `Estás a ${Math.round(dist)} m · Máximo permitido: ${e.radio} m`;
+        document.getElementById('modal-gps').classList.add('show');
+      }
+      if(callback) callback(ok, dist);
+    },
+    err=>{
+      banner.className='gps-fail';
+      banner.textContent='⚠ No se pudo obtener tu ubicación. Activa el GPS.';
+      if(callback) callback(false,-1);
+    },
+    {enableHighAccuracy:true, timeout:10000, maximumAge:0}
+  );
+}
+
+function calcDist(lat1,lon1,lat2,lon2){
+  const R=6371000, dL=(lat2-lat1)*Math.PI/180, dO=(lon2-lon1)*Math.PI/180;
+  const a=Math.sin(dL/2)**2+Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dO/2)**2;
+  return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
+}
+
+// ── REGISTRAR EVENTO ──────────────────────────────────────────
+function registrar(evt){
+  const idx    = FLUJO.indexOf(evt);
+  const ultimo = FLUJO.filter(k=>registrosHoy[k]).pop();
+  const idxUlt = ultimo ? FLUJO.indexOf(ultimo) : -1;
+
+  if(idx !== idxUlt+1){ toast('Sigue el orden: Entrada → Almuerzo → Regreso → Salida'); return; }
+
+  // Si es ENTRADA → mostrar confirmación EPP primero
+  if(evt === 'E'){
+    document.getElementById('mepp-aviso').style.display='none';
+    document.getElementById('modal-epp').classList.add('show');
+    return;
+  }
+
+  ejecutarRegistro(evt);
+}
+
+// ── CONFIRMAR EPP ─────────────────────────────────────────────
+function confirmarEPP(tiene){
+  if(!tiene){
+    document.getElementById('mepp-aviso').style.display='block';
+    return;
+  }
+  document.getElementById('modal-epp').classList.remove('show');
+  ejecutarRegistro('E', true);
+}
+
+// ── EJECUTAR REGISTRO (después de validaciones) ───────────────
+function ejecutarRegistro(evt, epp=false){
+  spinner(true,'Verificando ubicación...');
+
+  verificarGPS((ok,dist)=>{
+    spinner(false);
+    if(!ok) return;
+
+    const hora = new Date().toLocaleTimeString('es-EC',{hour12:false});
+    registrosHoy[evt] = hora;
+    if(epp) registrosHoy['epp_confirmado'] = hora; // guarda hora de confirmación EPP
+    guardarRegistrosLocales();
+    renderDia();
+
+    if(SCRIPT_URL !== 'TU_APPS_SCRIPT_URL_AQUI'){
+      enviarAlServidor(evt, hora, dist, epp);
+    }
+
+    toast(`✅ ${nombreEvt(evt)} registrada a las ${hora}`);
+  });
+}
+
+function nombreEvt(k){
+  return {E:'Entrada',A:'Almuerzo',R:'Regreso',S:'Salida'}[k];
+}
+
+// ── RENDER DÍA ────────────────────────────────────────────────
+function renderDia(){
+  const idxUlt = FLUJO.filter(k=>registrosHoy[k]).length - 1;
+
+  FLUJO.forEach((k,i)=>{
+    const btn  = document.getElementById('btn-'+k);
+    const hrEl = document.getElementById('hr-'+k);
+    const ps   = document.getElementById('ps'+i);
+    const done = !!registrosHoy[k];
+    const next = i === idxUlt+1;
+
+    btn.disabled = !done && !next;
+    btn.classList.toggle('done', done);
+    btn.classList.toggle('next', next);
+    hrEl.textContent = registrosHoy[k] || '';
+
+    ps.className = 'prog-seg' + (done?' done': next?' cur':'');
+
+    const rv = document.getElementById('rv-'+k);
+    if(rv) rv.textContent = registrosHoy[k] || '–';
+  });
+
+  // Resumen
+  const cardRes = document.getElementById('card-resumen');
+  if(Object.keys(registrosHoy).length > 0){
+    cardRes.style.display='block';
+    calcularHoras();
+  }
+}
+
+function calcularHoras(){
+  const {E,A,R,S} = registrosHoy;
+  if(!E||!S) return;
+
+  const toMins = t => { const[h,m]=t.split(':').map(Number); return h*60+m; };
+  let mins = toMins(S) - toMins(E);
+  if(A&&R) mins -= (toMins(R) - toMins(A));
+
+  const hTrab = Math.round(mins/60*10)/10;
+  const hExtra= Math.max(0, Math.round((mins - empleadoActual.jornadaHrs*60)/60*10)/10);
+
+  document.getElementById('rv-horas').textContent = hTrab+' hrs';
+  const rowExtra = document.getElementById('row-extra');
+  if(hExtra>0){
+    document.getElementById('rv-extra').textContent = '+'+hExtra+' hrs';
+    rowExtra.style.display='flex';
+  } else {
+    rowExtra.style.display='none';
+  }
+}
+
+// ── ENVIAR AL SERVIDOR ────────────────────────────────────────
+async function enviarAlServidor(evento, hora, distancia, epp=false){
+  const e = empleadoActual;
+  const payload = {
+    accion: 'registro',
+    cedula: e.cedula,
+    nombre: e.nombre,
+    obra:   e.obra,
+    evento: nombreEvt(evento),
+    hora,
+    fecha:  hoy(),
+    distancia_m: Math.round(distancia),
+    epp_confirmado: epp
+  };
+  try{
+    await fetch(SCRIPT_URL, {
+      method:'POST',
+      body: JSON.stringify(payload)
+    });
+  } catch(err){
+    console.warn('No se pudo enviar al servidor:',err);
+  }
+}
+</script>
+</body>
+</html>
